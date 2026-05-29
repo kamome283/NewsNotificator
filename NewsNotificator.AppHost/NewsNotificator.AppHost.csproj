@@ -12,4 +12,8 @@
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Sqlite" Version="13.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NewsNotificator.Core\NewsNotificator.Core.csproj" />
+  </ItemGroup>
+
 </Project>
