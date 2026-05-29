@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using NewsNotificator.Core;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -9,18 +10,22 @@ builder.Services.AddHostedService<Worker>();
 var host = builder.Build();
 host.Run();
 
-file class Worker(ILogger<Worker> logger) : BackgroundService
+file class Worker(ILogger<Worker> logger, IHostApplicationLifetime lifetime, IServiceProvider serviceProvider) : BackgroundService
 {
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    while (!stoppingToken.IsCancellationRequested)
+    try
     {
-      if (logger.IsEnabled(LogLevel.Information))
-      {
-        logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-      }
-
-      await Task.Delay(1000, stoppingToken);
+      using var scope = serviceProvider.CreateScope();
+      var db = scope.ServiceProvider.GetRequiredService<Db>();
+      await db.Database.MigrateAsync(stoppingToken);
+      lifetime.StopApplication();
+    }
+    catch (Exception e)
+    {
+      logger.LogCritical(e, "Failed to migrate database");
+      Environment.ExitCode = 1;
+      throw;
     }
   }
 }
