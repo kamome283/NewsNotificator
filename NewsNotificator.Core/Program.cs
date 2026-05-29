@@ -1,4 +1,9 @@
+using NewsNotificator.Core;
+
 var builder = Host.CreateApplicationBuilder(args);
+
+var conn = Environment.GetEnvironmentVariable("ConnectionStrings__sqlite")!;
+builder.Services.AddSqlite<Db>(conn);
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
