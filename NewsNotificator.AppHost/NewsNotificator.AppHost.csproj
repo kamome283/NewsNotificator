@@ -8,4 +8,8 @@
     <UserSecretsId>a8a2070b-c6a6-48a5-b2e2-20dcc51139e8</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Sqlite" Version="13.3.0" />
+  </ItemGroup>
+
 </Project>
