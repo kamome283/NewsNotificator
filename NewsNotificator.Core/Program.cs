@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using NewsNotificator.Core;
+using NewsNotificator.Core.Seeding;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-var conn = Environment.GetEnvironmentVariable("ConnectionStrings__sqlite")!;
+var conn = Environment.GetEnvironmentVariable("ConnectionStrings__db")!;
 builder.Services.AddSqlite<Db>(conn);
+builder.Services.AddScoped<ISeeder, FeedSeeder>();
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
@@ -19,6 +21,13 @@ file class Worker(ILogger<Worker> logger, IHostApplicationLifetime lifetime, ISe
       using var scope = serviceProvider.CreateScope();
       var db = scope.ServiceProvider.GetRequiredService<Db>();
       await db.Database.MigrateAsync(stoppingToken);
+
+      var seeders = scope.ServiceProvider.GetRequiredService<IEnumerable<ISeeder>>();
+      foreach (var seeder in seeders)
+      {
+        await seeder.SeedEntitiesAsync(stoppingToken);
+      }
+      await db.SaveChangesAsync(stoppingToken);
       lifetime.StopApplication();
     }
     catch (Exception e)
