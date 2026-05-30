@@ -4,7 +4,8 @@ using NewsNotificator.Core.Seeding;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-var conn = Environment.GetEnvironmentVariable("ConnectionStrings__db")!;
+var conn = Environment.GetEnvironmentVariable("ConnectionStrings__db");
+if (conn is null) throw new NullReferenceException("ConnectionStrings__db");
 builder.Services.AddSqlite<Db>(conn);
 builder.Services.AddScoped<ISeeder, FeedSeeder>();
 builder.Services.AddHostedService<Worker>();
