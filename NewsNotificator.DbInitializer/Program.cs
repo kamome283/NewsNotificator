@@ -1,14 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using NewsNotificator.Core;
 using NewsNotificator.Core.Repository;
 using NewsNotificator.Core.Seeding;
 
 var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
-
-var conn = Environment.GetEnvironmentVariable("ConnectionStrings__db");
-if (conn is null) throw new NullReferenceException("ConnectionStrings__db");
-builder.Services.AddSqlite<Db>(conn);
-builder.Services.AddScoped<ISeeder, FeedSeeder>();
+builder.AddCoreServices();
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
