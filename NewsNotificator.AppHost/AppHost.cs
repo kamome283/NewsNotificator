@@ -16,6 +16,9 @@ var core = builder
     IsHidden = true,
   });
 
+var dbInitializer = builder
+  .AddProject<NewsNotificator_DbInitializer>("db-initializer");
+
 foreach (var resource in builder.Resources)
 {
   if (resource == db.Resource) continue;
