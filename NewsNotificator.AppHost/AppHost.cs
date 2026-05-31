@@ -8,7 +8,13 @@ var db = builder
   .AddSqlite("db");
 
 var dbInitializer = builder
-  .AddProject<NewsNotificator_DbInitializer>("db-initializer");
+  .AddProject<NewsNotificator_DbInitializer>("db-initializer")
+  .WithInitialState(new CustomResourceSnapshot
+  {
+    ResourceType = nameof(ProjectResource),
+    Properties = [],
+    IsHidden = true,
+  });
 
 foreach (var resource in builder.Resources)
 {
