@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using NewsNotificator.Core.Entities;
 
 namespace NewsNotificator.Core.Seeding;

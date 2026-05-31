@@ -7,15 +7,6 @@ var builder = DistributedApplication.CreateBuilder(args);
 var db = builder
   .AddSqlite("db");
 
-var core = builder
-  .AddProject<NewsNotificator_Core>("core")
-  .WithInitialState(new CustomResourceSnapshot
-  {
-    ResourceType = nameof(ProjectResource),
-    Properties = [],
-    IsHidden = true,
-  });
-
 var dbInitializer = builder
   .AddProject<NewsNotificator_DbInitializer>("db-initializer");
 

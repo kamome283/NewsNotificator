@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NewsNotificator.Core\NewsNotificator.Core.csproj" />
     <ProjectReference Include="..\NewsNotificator.DbInitializer\NewsNotificator.DbInitializer.csproj" />
   </ItemGroup>
 
