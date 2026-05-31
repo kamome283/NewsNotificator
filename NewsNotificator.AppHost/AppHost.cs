@@ -9,7 +9,26 @@ var db = builder
 
 var core = builder
   .AddProject<NewsNotificator_Core>("core")
-  .WithReference(db)
-  .WaitFor(db);
+  .WithInitialState(new CustomResourceSnapshot
+  {
+    ResourceType = nameof(ProjectResource),
+    Properties = [],
+    IsHidden = true,
+  });
+
+foreach (var resource in builder.Resources)
+{
+  if (resource == db.Resource) continue;
+
+  if (resource is IResourceWithEnvironment env)
+  {
+    builder.CreateResourceBuilder(env).WithReference(db);
+  }
+
+  if (resource is IResourceWithWaitSupport wait)
+  {
+    builder.CreateResourceBuilder(wait).WaitFor(db);
+  }
+}
 
 builder.Build().Run();
