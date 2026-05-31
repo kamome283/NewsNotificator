@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using NewsNotificator.Core.Entities;
+using NewsNotificator.Core.Repository;
 
 namespace NewsNotificator.Core.Seeding;
 

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using NewsNotificator.Core;
+using NewsNotificator.Core.Repository;
 using NewsNotificator.Core.Seeding;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -14,7 +14,8 @@ builder.Services.AddHostedService<Worker>();
 var host = builder.Build();
 host.Run();
 
-file class Worker(ILogger<Worker> logger, IHostApplicationLifetime lifetime, IServiceProvider serviceProvider) : BackgroundService
+file class Worker(ILogger<Worker> logger, IHostApplicationLifetime lifetime, IServiceProvider serviceProvider)
+  : BackgroundService
 {
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
@@ -29,6 +30,7 @@ file class Worker(ILogger<Worker> logger, IHostApplicationLifetime lifetime, ISe
       {
         await seeder.SeedEntitiesAsync(stoppingToken);
       }
+
       await db.SaveChangesAsync(stoppingToken);
       lifetime.StopApplication();
     }

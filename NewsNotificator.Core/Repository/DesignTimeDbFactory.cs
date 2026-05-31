@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace NewsNotificator.Core;
+namespace NewsNotificator.Core.Repository;
 
-public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Db>
+// ReSharper disable once UnusedType.Global
+public class DesignTimeDbFactory : IDesignTimeDbContextFactory<Db>
 {
   public Db CreateDbContext(string[] args)
   {

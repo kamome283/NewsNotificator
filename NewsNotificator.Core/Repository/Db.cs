@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NewsNotificator.Core.Entities;
 
-namespace NewsNotificator.Core;
+namespace NewsNotificator.Core.Repository;
 
 public class Db(DbContextOptions<Db> options): DbContext(options)
 {
