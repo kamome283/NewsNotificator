@@ -8,21 +8,13 @@ var db = builder
   .AddSqlite("db");
 
 var dbInitializer = builder
-  .AddProject<NewsNotificator_DbInitializer>("db-initializer");
+  .AddProject<NewsNotificator_DbInitializer>("db-initializer")
+  .WithReference(db)
+  .WaitFor(db);
 
-foreach (var resource in builder.Resources)
-{
-  if (resource == db.Resource) continue;
-
-  if (resource is IResourceWithEnvironment env)
-  {
-    builder.CreateResourceBuilder(env).WithReference(db);
-  }
-
-  if (resource is IResourceWithWaitSupport wait)
-  {
-    builder.CreateResourceBuilder(wait).WaitFor(db);
-  }
-}
+var feedWatcher = builder
+  .AddProject<NewsNotificator_FeedWatcher>("feed-watcher")
+  .WithReference(db)
+  .WaitForCompletion(dbInitializer);
 
 builder.Build().Run();
