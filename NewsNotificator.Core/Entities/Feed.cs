@@ -9,4 +9,6 @@ public class Feed
   public required Uri Uri { get; init; }
   [MaxLength(100)]
   public required string Title { get; init; }
+
+  public ICollection<Entry> Entries { get; init; } = [];
 }

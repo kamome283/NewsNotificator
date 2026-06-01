@@ -6,4 +6,5 @@ namespace NewsNotificator.Core.Repository;
 public class Db(DbContextOptions<Db> options): DbContext(options)
 {
   internal DbSet<Feed> Feeds { get; set; }
+  internal DbSet<Entry> Entries { get; set; }
 }
