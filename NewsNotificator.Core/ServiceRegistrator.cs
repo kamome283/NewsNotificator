@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NewsNotificator.Core.Domains;
 using NewsNotificator.Core.Repository;
 using NewsNotificator.Core.Seeding;
 
@@ -12,6 +13,7 @@ public static class ServiceRegistrator
     public void AddCoreServices()
     {
       builder.AddDb();
+      builder.AddDomains();
       builder.AddSeeders();
     }
 
@@ -20,6 +22,11 @@ public static class ServiceRegistrator
       var connStr = Environment.GetEnvironmentVariable("ConnectionStrings__db");
       if (connStr is null) throw new NullReferenceException("ConnectionStrings__db");
       builder.Services.AddSqlite<Db>(connStr);
+    }
+
+    private void AddDomains()
+    {
+      builder.Services.AddTransient<WritableRssDomain>();
     }
 
     private void AddSeeders()
