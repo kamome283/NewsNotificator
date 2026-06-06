@@ -1,14 +1,27 @@
 using NewsNotificator.Core;
 using NewsNotificator.Core.Domains;
+using NewsNotificator.Core.Entities;
+using NewsNotificator.FeedWatcher;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.AddCoreServices();
-builder.Services.AddHostedService<Worker>();
+builder.Services
+  .AddTransient<IFeedLoader, FeedLoader>()
+  .AddSingleton<HttpClient>()
+  .AddSingleton<IFeedParser, FeedParser>()
+  .AddHostedService<Worker>();
 
 var host = builder.Build();
 host.Run();
 
-file class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider, IConfiguration config) : BackgroundService
+file class Worker(
+  ILogger<Worker> logger,
+  IServiceProvider serviceProvider,
+  IConfiguration config,
+  IFeedLoader feedLoader,
+  IFeedParser feedParser
+) :
+  BackgroundService
 {
   private TimeSpan PollingInterval =>
     config.GetValue<TimeSpan?>("PollingInterval")
@@ -22,14 +35,10 @@ file class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider, ICon
       {
         using var scope = serviceProvider.CreateScope();
         var writableRssDomain = scope.ServiceProvider.GetRequiredService<WritableRssDomain>();
-        if (logger.IsEnabled(LogLevel.Information))
+        var feeds = writableRssDomain.Feeds;
+        foreach (var feed in feeds)
         {
-          logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-          var feeds = writableRssDomain.Feeds;
-          foreach (var feed in feeds)
-          {
-            logger.LogInformation("Feed: {Id}, {Title}, {URL}", feed.Id, feed.Title, feed.Uri);
-          }
+          await PollFeedAsync(feed);
         }
 
         await Task.Delay(PollingInterval, stoppingToken);
@@ -39,6 +48,19 @@ file class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider, ICon
     {
       Environment.ExitCode = 1;
       throw;
+    }
+  }
+
+  private async Task PollFeedAsync(Feed feed)
+  {
+    var document = await feedLoader.LoadFeedAsync(feed);
+    var entries = feedParser.ParseXmlAsync(document, feed);
+    if (logger.IsEnabled(LogLevel.Information))
+    {
+      foreach (var entry in entries)
+      {
+        logger.LogInformation("Entry {Title}: {URL}", entry.Title, entry.Link);
+      }
     }
   }
 }
