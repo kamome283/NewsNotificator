@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using NewsNotificator.Core;
 using NewsNotificator.Core.Domains;
 
@@ -9,8 +8,12 @@ builder.Services.AddHostedService<Worker>();
 var host = builder.Build();
 host.Run();
 
-file class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider) : BackgroundService
+file class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider, IConfiguration config) : BackgroundService
 {
+  private TimeSpan PollingInterval =>
+    config.GetValue<TimeSpan?>("PollingInterval")
+    ?? throw new NullReferenceException("Polling interval not specified");
+
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
     try
@@ -29,7 +32,7 @@ file class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider) : Ba
           }
         }
 
-        await Task.Delay(1000, stoppingToken);
+        await Task.Delay(PollingInterval, stoppingToken);
       }
     }
     catch (Exception)
