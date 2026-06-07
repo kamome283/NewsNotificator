@@ -1,0 +1,23 @@
+@page "/feeds"
+@using Microsoft.EntityFrameworkCore
+@using NewsNotificator.Core.Domains
+@using NewsNotificator.Core.Entities
+@inject WritableRssDomain RssDomain
+
+<h3>Feeds</h3>
+<ul>
+  @foreach (var feed in _feeds)
+  {
+    <li>@feed.Title</li>
+  }
+</ul>
+
+@code {
+  private IEnumerable<Feed> _feeds = null!;
+
+  protected override async Task OnInitializedAsync()
+  {
+    _feeds = await RssDomain.Feeds.ToListAsync();
+  }
+
+}

@@ -8,7 +8,7 @@ namespace NewsNotificator.Core;
 
 public static class ServiceRegistrator
 {
-  extension(HostApplicationBuilder builder)
+  extension(IHostApplicationBuilder builder)
   {
     public void AddCoreServices()
     {

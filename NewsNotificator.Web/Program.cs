@@ -1,6 +1,8 @@
+using NewsNotificator.Core;
 using NewsNotificator.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddCoreServices();
 
 // Add services to the container.
 builder.Services.AddRazorComponents();
