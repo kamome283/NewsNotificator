@@ -1,0 +1,33 @@
+@page "/feeds/{feed:int}"
+@using Microsoft.EntityFrameworkCore
+@using NewsNotificator.Core.Domains
+@using NewsNotificator.Core.Entities
+@inject WritableRssDomain RssDomain
+@inject NavigationManager Navigation
+
+<h3>Entries</h3>
+<ul>
+  @foreach (var entry in _entries)
+  {
+    <li>@entry.Title</li>
+  }
+</ul>
+
+@code {
+  [Parameter]
+  public int Feed { get; set; }
+
+  private IEnumerable<Entry> _entries = null!;
+
+  protected override async Task OnInitializedAsync()
+  {
+    var feed = await RssDomain.Feeds.FindAsync(Feed);
+    if (feed is null) Navigation.NotFound();
+    var entries =
+      from entry in RssDomain.Entries
+      where entry.Feed == feed
+      select entry;
+    _entries = await entries.ToListAsync();
+  }
+
+}
