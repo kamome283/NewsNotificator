@@ -1,8 +1,11 @@
 @page "/feeds"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.EntityFrameworkCore
 @using NewsNotificator.Core.Domains
 @using NewsNotificator.Core.Entities
 @inject WritableRssDomain RssDomain
+@inject NavigationManager NavigationManager
 
 <h3>Feeds</h3>
 <ul>
@@ -10,14 +13,50 @@
   {
     <li><a href="/feeds/@feed.Id">@feed.Title</a></li>
   }
+  <li>
+    <EditForm Model="Model" OnValidSubmit="Submit" FormName="FeedForm">
+      <DataAnnotationsValidator/>
+      <ValidationSummary/>
+      <label>
+        Title:
+        <InputText @bind-Value="Model!.Title"/>
+      </label>
+      <label>
+        URL:
+        <InputText @bind-Value="Model!.Url"/>
+      </label>
+      <button type="submit">Submit</button>
+    </EditForm>
+  </li>
+
 </ul>
 
 @code {
+  [SupplyParameterFromForm]
+  private FeedForm? Model { get; set; }
+
   private IEnumerable<Feed> _feeds = null!;
 
   protected override async Task OnInitializedAsync()
   {
+    Model ??= new FeedForm();
     _feeds = await RssDomain.Feeds.ToListAsync();
+  }
+
+  public async Task Submit()
+  {
+    var feed = new Feed { Title = Model!.Title, Uri = new Uri(Model!.Url) };
+    await RssDomain.Feeds.AddAsync(feed);
+    await RssDomain.SaveChangesAsync();
+    NavigationManager.NavigateTo(NavigationManager.Uri);
+  }
+
+  public class FeedForm
+  {
+    [Required, StringLength(100)]
+    public string Title { get; set; } = null!;
+    [Required, Url]
+    public string Url { get; set; } = null!;
   }
 
 }
