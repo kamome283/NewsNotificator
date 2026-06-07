@@ -27,6 +27,7 @@ public static class ServiceRegistrator
     private void AddDomains()
     {
       builder.Services.AddTransient<WritableRssDomain>();
+      builder.Services.AddTransient<WritableEntryDomain>();
     }
 
     private void AddSeeders()

@@ -27,21 +27,14 @@ file class Worker(
     config.GetValue<TimeSpan?>("PollingInterval")
     ?? throw new NullReferenceException("Polling interval not specified");
 
-  protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+  protected override async Task ExecuteAsync(CancellationToken ct)
   {
     try
     {
-      while (!stoppingToken.IsCancellationRequested)
+      while (!ct.IsCancellationRequested)
       {
-        using var scope = serviceProvider.CreateScope();
-        var writableRssDomain = scope.ServiceProvider.GetRequiredService<WritableRssDomain>();
-        var feeds = writableRssDomain.Feeds;
-        foreach (var feed in feeds)
-        {
-          await PollFeedAsync(feed);
-        }
-
-        await Task.Delay(PollingInterval, stoppingToken);
+        await Loop(ct);
+        await Task.Delay(PollingInterval, ct);
       }
     }
     catch (Exception)
@@ -51,16 +44,25 @@ file class Worker(
     }
   }
 
-  private async Task PollFeedAsync(Feed feed)
+  private async Task Loop(CancellationToken ct)
   {
-    var document = await feedLoader.LoadFeedAsync(feed);
-    var entries = feedParser.ParseXmlAsync(document, feed);
-    if (logger.IsEnabled(LogLevel.Information))
+    using var scope = serviceProvider.CreateScope();
+    var writableRssDomain = scope.ServiceProvider.GetRequiredService<WritableRssDomain>();
+    var writableEntryDomain = scope.ServiceProvider.GetRequiredService<WritableEntryDomain>();
+
+    var feeds = writableRssDomain.Feeds;
+    foreach (var feed in feeds)
     {
+      var document = await feedLoader.LoadFeedAsync(feed);
+      var entries = feedParser.ParseXmlAsync(document, feed);
       foreach (var entry in entries)
       {
-        logger.LogInformation("Entry {Title}: {URL}", entry.Title, entry.Link);
+        if (await writableEntryDomain.Entries.FindAsync([entry.Guid], ct) is not null) continue;
+        if (logger.IsEnabled(LogLevel.Information))
+          logger.LogInformation("Adding {EntryTitle} to {FeedTitle}", entry.Title, feed.Title);
+        await writableEntryDomain.Entries.AddAsync(entry, ct);
       }
+      await writableEntryDomain.SaveChangesAsync(ct);
     }
   }
 }
