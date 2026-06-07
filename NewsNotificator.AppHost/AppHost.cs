@@ -17,4 +17,9 @@ var feedWatcher = builder
   .WithReference(db)
   .WaitForCompletion(dbInitializer);
 
+var web = builder
+  .AddProject<NewsNotificator_Web>("web")
+  .WithReference(db)
+  .WaitForCompletion(dbInitializer);
+
 builder.Build().Run();

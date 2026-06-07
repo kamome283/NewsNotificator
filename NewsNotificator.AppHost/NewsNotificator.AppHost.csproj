@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NewsNotificator.DbInitializer\NewsNotificator.DbInitializer.csproj" />
     <ProjectReference Include="..\NewsNotificator.FeedWatcher\NewsNotificator.FeedWatcher.csproj" />
+    <ProjectReference Include="..\NewsNotificator.Web\NewsNotificator.Web.csproj" />
   </ItemGroup>
 
 </Project>
