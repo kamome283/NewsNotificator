@@ -24,7 +24,7 @@ file class Worker(ILogger<Worker> logger, IHostApplicationLifetime lifetime, ISe
       var seeders = scope.ServiceProvider.GetRequiredService<IEnumerable<ISeeder>>();
       foreach (var seeder in seeders)
       {
-        await seeder.SeedEntitiesAsync(stoppingToken);
+        // await seeder.SeedEntitiesAsync(stoppingToken);
       }
 
       await db.SaveChangesAsync(stoppingToken);
